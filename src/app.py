@@ -9,6 +9,8 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User
+from models import db, Character
+from models import db, Planet
 #from models import Person
 
 app = Flask(__name__)
@@ -44,6 +46,38 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+@app.route('/new_user', methods=['POST'])
+def add_user():
+    user = User()
+    user.name = request.json.get("nombre")
+    user.email = request.json.get("mail")
+    user.password = request.json.get("contraseña")
+    user.new_user()  
+    
+    return jsonify({"usuario" : user.serialize()}), 200
+
+@app.route('/users', methods=['GET'])
+def get_all_users():
+    users = User.query.all()
+    users = list(map(lambda user: user.serialize(), users))
+
+    return jsonify(users), 200   
+
+@app.route('/planets', methods=['GET'])
+def get_all_panets():
+    planets = Planet.query.all()
+    planets = list(map(lambda planet: planet.serialize(), planets))# convertir en array
+
+    return jsonify(planets), 200
+
+@app.route('/characters', methods=['GET'])
+def get_all_character():
+    characters = Character.query.all()
+    characters = list(map(lambda character: character.serialize(), characters))
+
+    return jsonify(characters), 200    
+    
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
