@@ -47,12 +47,25 @@ def handle_hello():
 
     return jsonify(response_body), 200
 
-@app.route('/new_user', methods=['POST'])
+@app.route('/user', methods=['POST'])
 def add_user():
+    data = request.get_json()
+
     user = User()
-    user.name = request.json.get("nombre")
-    user.email = request.json.get("mail")
-    user.password = request.json.get("contraseña")
+    user.name = data["nombre"]
+    user.email = data["mail"]
+    user.password = data["password"]
+    user.planets = data["planets"]
+    if len(planet) > 0:
+        for planet_id in planet:
+            planet = Planet.query.get(planet_id)
+            user.planets.append(planet)
+
+    user.characters = data["characters"]
+    if len(character) > 0:
+        for character_id in character:
+            character = Planet.query.get(character_id)
+            user.characters.append(character)
     user.new_user()  
     
     return jsonify({"usuario" : user.serialize()}), 200
@@ -64,6 +77,18 @@ def get_all_users():
 
     return jsonify(users), 200   
 
+
+@app.route('/planets', methods=['POST'])
+def add_planet():
+    data = request.get_json()
+
+    planet = Planet()
+    planet.name = data["name"]
+    planet.properties = data["properties"] 
+    planet.new_planet()
+
+    return jsonify({"msg":"character created"}), 201
+
 @app.route('/planets', methods=['GET'])
 def get_all_panets():
     planets = Planet.query.all()
@@ -71,12 +96,43 @@ def get_all_panets():
 
     return jsonify(planets), 200
 
+@app.route('/planets/<int:id>', methods=['GET'])
+def get_planet(id):
+    planet = Planet.query.get(id)
+    
+    if planet is not None:
+        return jsonify({"planet" : planet.serialize()}), 200
+    
+    else:
+        return jsonify({ "msg": "planet not found"}), 404
+
+@app.route('/characters', methods=['POST'])
+def add_character():
+    data = request.get_json()
+
+    character = Character()
+    character.name = data["name"]
+    character.properties = data["properties"] 
+    character.new_character()
+
+    return jsonify({"msg":"character created"}), 201
+
 @app.route('/characters', methods=['GET'])
 def get_all_character():
     characters = Character.query.all()
     characters = list(map(lambda character: character.serialize(), characters))
 
-    return jsonify(characters), 200    
+    return jsonify({"characters" : characters.serialize()}), 200  
+
+@app.route('/characters/<int:id>', methods=['GET'])
+def get_character(id):
+    character = Character.query.get(id)
+    
+    if character is not None:
+        return jsonify({"character" : character.serialize()}), 200
+    
+    else:
+        return jsonify({ "msg": "character not found"}), 404
     
 
 # this only runs if `$ python src/app.py` is executed

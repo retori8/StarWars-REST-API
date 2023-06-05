@@ -28,8 +28,6 @@ class User(db.Model):
             "id": self.id,
             "name": self.name,
             "email": self.email,
-            #"planets": self.planets,
-            #"characters": self.characters
         }
 
     def new_user(self):
@@ -50,6 +48,10 @@ class Character(db.Model):
             "properties": self.properties,
             "user": self.users
         }
+    
+    def new_character(self):
+        db.session.add(self)
+        db.session.commit()    
 
 class Planet(db.Model):
     __tablename__ = 'planet'
@@ -64,4 +66,8 @@ class Planet(db.Model):
             "name": self.name,
             "properties": self.properties
         }
+    
+    def new_planet(self):
+        db.session.add(self)
+        db.session.commit()  
 
