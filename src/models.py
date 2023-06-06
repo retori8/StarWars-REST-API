@@ -2,17 +2,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-favorite_character = db.Table(
-    'favorite_character',    
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), nullable=False, primary_key=True),
-    db.Column('character_id', db.Integer, db.ForeignKey('character.id'), nullable=False, primary_key=True)
-)
-
-favorite_planet = db.Table(
-    'favorite_planet',     
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), nullable=False, primary_key=True),
-    db.Column('planet_id', db.Integer, db.ForeignKey('planet.id'), nullable=False, primary_key=True)    
-)
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -20,8 +9,8 @@ class User(db.Model):
     name = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(120),  nullable=False, unique=True)
     password = db.Column(db.String(120), nullable=False)
-    planets = db.relationship('Planet', secondary='favorite_planet')
-    characters = db.relationship('Character', secondary='favorite_character')
+    favorite_planets = db.relationship('Favorite_planet', backref='user')
+    favorite_characters = db.relationship('Favorite_character', backref='user')
 
     def serialize(self):
         return{
@@ -34,31 +23,39 @@ class User(db.Model):
         db.session.add(self)
         db.session.commit()    
 
+    def update_user(self):
+        db.session.commit()
+
+    def delete_user(self):
+        db.session.delete(self)
+        db.session.commit()    
+
 class Character(db.Model):
     __tablename__ = 'character'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
     properties =  db.Column(db.Text , nullable=False)
-    users = db.relationship('User', secondary='favorite_character')
 
     def serialize(self):
         return{
             "id": self.id,
             "name": self.name,
             "properties": self.properties,
-            "user": self.users
         }
     
     def new_character(self):
         db.session.add(self)
-        db.session.commit()    
+        db.session.commit()   
+
+    def delete_character(self):
+        db.session.delete(self)
+        db.session.commit()     
 
 class Planet(db.Model):
     __tablename__ = 'planet'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
     properties =  db.Column(db.Text , nullable=False) 
-    users = db.relationship('User', secondary='favorite_planet') 
 
     def serialize(self):
         return{
@@ -70,4 +67,54 @@ class Planet(db.Model):
     def new_planet(self):
         db.session.add(self)
         db.session.commit()  
+
+    def delete_planet(self):
+        db.session.delete(self)
+        db.session.commit() 
+        
+
+class Favorite_character(db.Model):
+    __tablename__ = 'favorite_character' 
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    character_id = db.Column('character_id', db.Integer, db.ForeignKey('character.id'), primary_key=True)
+    characterS = db.relationship('Character', backref='favorite_character')
+
+    def serialize(self):
+        return{
+            "id": self.id,
+            "user_id": self.user_id,
+            "character_id": self.character_id
+        }
+    
+    def new_favorite_character(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete_favorite_character(self):
+        db.session.delete(self)
+        db.session.commit()    
+
+
+class Favorite_planet(db.Model):
+    __tablename__ = 'favorite_planet', 
+    id = db.Column(db.Integer, primary_key=True)    
+    user_id = db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    planet_id = db.Column('planet_id', db.Integer, db.ForeignKey('planet.id'), primary_key=True)    
+    planets = db.relationship('Planet', backref='favorite_planet')
+
+    def serialize(self):
+        return{
+            "id": self.id,
+            "user_id": self.user_id,
+            "planet_id": self.character_id
+        }      
+
+    def new_favorite_planet(self):
+        db.session.add(self)
+        db.session.commit()  
+
+    def delete_favorite_planet(self):
+        db.session.delete(self)
+        db.session.commit()     
 

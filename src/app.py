@@ -9,8 +9,8 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User
-from models import db, Character
-from models import db, Planet
+from models import db, Character,Favorite_character
+from models import db, Planet, Favorite_planet
 #from models import Person
 
 app = Flask(__name__)
@@ -38,7 +38,7 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-@app.route('/user', methods=['GET'])
+@app.route('/', methods=['GET'])
 def handle_hello():
 
     response_body = {
@@ -52,20 +52,10 @@ def add_user():
     data = request.get_json()
 
     user = User()
-    user.name = data["nombre"]
-    user.email = data["mail"]
+    user.name = data["name"]
+    user.email = data["email"]
     user.password = data["password"]
-    user.planets = data["planets"]
-    if len(planet) > 0:
-        for planet_id in planet:
-            planet = Planet.query.get(planet_id)
-            user.planets.append(planet)
-
-    user.characters = data["characters"]
-    if len(character) > 0:
-        for character_id in character:
-            character = Planet.query.get(character_id)
-            user.characters.append(character)
+            
     user.new_user()  
     
     return jsonify({"usuario" : user.serialize()}), 200
@@ -77,6 +67,27 @@ def get_all_users():
 
     return jsonify(users), 200   
 
+@app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
+def add_favorite_planet(planet_id):
+    data = request.get_json()
+
+    favorite_planet = Favorite_planet()
+    favorite_planet.user_id = data ('user_id')
+    favorite_planet.planet_id = planet_id 
+    favorite_planet.new_favorite_planet()
+
+    return jsonify({"msg":"added favorite_planet"}), 201
+
+@app.route('/favorite/character/<int:character_id>', methods=['POST'])
+def add_favorite_planet(character_id):
+    data = request.get_json()
+
+    favorite_character = Favorite_character()
+    favorite_character.user_id = data ('user_id')
+    favorite_character.character_id = character_id
+    favorite_character.new_favorite_character()
+
+    return jsonify({"msg":"added favorite_planet"}), 201
 
 @app.route('/planets', methods=['POST'])
 def add_planet():
@@ -87,7 +98,7 @@ def add_planet():
     planet.properties = data["properties"] 
     planet.new_planet()
 
-    return jsonify({"msg":"character created"}), 201
+    return jsonify({"msg":"planet created"}), 201
 
 @app.route('/planets', methods=['GET'])
 def get_all_panets():
