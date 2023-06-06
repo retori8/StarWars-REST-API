@@ -9,7 +9,7 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User
-from models import db, Character,Favorite_character
+from models import db, Character, Favorite_character
 from models import db, Planet, Favorite_planet
 #from models import Person
 
@@ -46,7 +46,7 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
-
+#USUARIO----------------------------------------------------------------------------------------------------------
 @app.route('/user', methods=['POST'])
 def add_user():
     data = request.get_json()
@@ -65,14 +65,24 @@ def get_all_users():
     users = User.query.all()
     users = list(map(lambda user: user.serialize(), users))
 
-    return jsonify(users), 200   
+    return jsonify(users), 200 
+#FAV_USUARIO-----------------------------------------------------------------------------------------------------
+@app.route('/user/<int:user_id>/favorites', methods=['GET'])
+def get_user_favorites(user_id):
+    
+    favortie_character = Favorite_character.query.all()
+    favortie_character = list(map(lambda favortie_character: favortie_character.serialize(), favortie_character))
+    favortie_planet = Favorite_planet.query.all()
+    favortie_planet = list(map(lambda favortie_planet: favortie_planet.serialize(), favortie_planet))
 
+    return jsonify(favortie_character, favortie_planet), 200  
+#AGREGAR_FAV-----------------------------------------------------------------------------------------------------
 @app.route('/favorite_planet/<int:planet_id>', methods=['POST'])
 def add_favorite_planet(planet_id):
     data = request.get_json()
 
     favorite_planet = Favorite_planet()
-    favorite_planet.user_id = data ('user_id')
+    favorite_planet.user_id = data ['user_id']
     favorite_planet.planet_id = planet_id 
     favorite_planet.new_favorite_planet()
 
@@ -83,12 +93,12 @@ def add_favorite_character(character_id):
     data = request.get_json()
 
     favorite_character = Favorite_character()
-    favorite_character.user_id = data ('user_id')
+    favorite_character.user_id = data ['user_id']
     favorite_character.character_id = character_id
     favorite_character.new_favorite_character()
 
-    return jsonify({"msg":"added favorite_planet"}), 201
-
+    return jsonify({"msg":"added favorite_character"}), 201
+#PLANETAS-----------------------------------------------------------------------------------------------------
 @app.route('/planets', methods=['POST'])
 def add_planet():
     data = request.get_json()
@@ -116,7 +126,7 @@ def get_planet(id):
     
     else:
         return jsonify({ "msg": "planet not found"}), 404
-
+#PERSONAJES-----------------------------------------------------------------------------------------------------
 @app.route('/characters', methods=['POST'])
 def add_character():
     data = request.get_json()
@@ -133,7 +143,7 @@ def get_all_character():
     characters = Character.query.all()
     characters = list(map(lambda character: character.serialize(), characters))
 
-    return jsonify({"characters" : characters.serialize()}), 200  
+    return jsonify(characters), 200  
 
 @app.route('/characters/<int:id>', methods=['GET'])
 def get_character(id):
