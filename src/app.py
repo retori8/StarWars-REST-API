@@ -67,7 +67,7 @@ def get_all_users():
 
     return jsonify(users), 200   
 
-@app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
+@app.route('/favorite_planet/<int:planet_id>', methods=['POST'])
 def add_favorite_planet(planet_id):
     data = request.get_json()
 
@@ -78,8 +78,8 @@ def add_favorite_planet(planet_id):
 
     return jsonify({"msg":"added favorite_planet"}), 201
 
-@app.route('/favorite/character/<int:character_id>', methods=['POST'])
-def add_favorite_planet(character_id):
+@app.route('/favorite_character/<int:character_id>', methods=['POST'])
+def add_favorite_character(character_id):
     data = request.get_json()
 
     favorite_character = Favorite_character()
@@ -112,7 +112,7 @@ def get_planet(id):
     planet = Planet.query.get(id)
     
     if planet is not None:
-        return jsonify({"planet" : planet.serialize()}), 200
+        return jsonify({"planet": planet.serialize()}), 200
     
     else:
         return jsonify({ "msg": "planet not found"}), 404

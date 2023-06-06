@@ -76,9 +76,9 @@ class Planet(db.Model):
 class Favorite_character(db.Model):
     __tablename__ = 'favorite_character' 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-    character_id = db.Column('character_id', db.Integer, db.ForeignKey('character.id'), primary_key=True)
-    characterS = db.relationship('Character', backref='favorite_character')
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    character_id = db.Column(db.Integer, db.ForeignKey('character.id'))
+    characters = db.relationship('Character', backref='favorite_character')
 
     def serialize(self):
         return{
@@ -97,17 +97,17 @@ class Favorite_character(db.Model):
 
 
 class Favorite_planet(db.Model):
-    __tablename__ = 'favorite_planet', 
+    __tablename__ = 'favorite_planet'
     id = db.Column(db.Integer, primary_key=True)    
-    user_id = db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-    planet_id = db.Column('planet_id', db.Integer, db.ForeignKey('planet.id'), primary_key=True)    
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'))    
     planets = db.relationship('Planet', backref='favorite_planet')
 
     def serialize(self):
-        return{
+        return {
             "id": self.id,
             "user_id": self.user_id,
-            "planet_id": self.character_id
+            "planet_id": self.planet_id
         }      
 
     def new_favorite_planet(self):
