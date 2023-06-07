@@ -69,13 +69,13 @@ def get_all_users():
 #FAV_USUARIO-----------------------------------------------------------------------------------------------------
 @app.route('/user/<int:user_id>/favorites', methods=['GET'])
 def get_user_favorites(user_id):
+    favorite_characters = Favorite_character.query.filter_by(user_id=user_id).all()
+    favorite_characters = list(map(lambda favorite_character: favorite_character.serialize(), favorite_characters))
     
-    favortie_character = Favorite_character.query.all()
-    favortie_character = list(map(lambda favortie_character: favortie_character.serialize(), favortie_character))
-    favortie_planet = Favorite_planet.query.all()
-    favortie_planet = list(map(lambda favortie_planet: favortie_planet.serialize(), favortie_planet))
+    favorite_planets = Favorite_planet.query.filter_by(user_id=user_id).all()
+    favorite_planets = list(map(lambda favorite_planet: favorite_planet.serialize(), favorite_planets))
 
-    return jsonify(favortie_character, favortie_planet), 200  
+    return jsonify({"favorite_characters": favorite_characters, "favorite_planets": favorite_planets}), 200
 #AGREGAR_FAV-----------------------------------------------------------------------------------------------------
 @app.route('/favorite_planet/<int:planet_id>', methods=['POST'])
 def add_favorite_planet(planet_id):
@@ -98,6 +98,30 @@ def add_favorite_character(character_id):
     favorite_character.new_favorite_character()
 
     return jsonify({"msg":"added favorite_character"}), 201
+
+#ELIMINAR_FAV-----------------------------------------------------------------------------------------------------
+@app.route('/favorite_planet/<int:user_id>/<int:planet_id>', methods=['DELETE'])
+def delete_favorite_planet(user_id, planet_id):
+    favorite_planet = Favorite_planet.query.filter_by(user_id=user_id, planet_id=planet_id).first()
+
+    if favorite_planet is None:
+        return jsonify({"error": "favorite_planet not found"}), 404
+
+    favorite_planet.delete_favorite_planet()
+
+    return jsonify({"msg": "deleted favorite_planet"}), 200
+
+@app.route('/favorite_character/<int:user_id>/<int:character_id>', methods=['DELETE'])
+def delete_favorite_character(user_id, character_id):
+    favorite_character = Favorite_character.query.filter_by(user_id=user_id, character_id=character_id).first()
+
+    if favorite_character is None:
+        return jsonify({"error": "favorite_character not found"}), 404
+
+    favorite_character.delete_favorite_character()
+
+    return jsonify({"msg": "deleted favorite_character"}), 200
+
 #PLANETAS-----------------------------------------------------------------------------------------------------
 @app.route('/planets', methods=['POST'])
 def add_planet():
