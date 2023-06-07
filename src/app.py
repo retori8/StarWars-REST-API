@@ -58,15 +58,16 @@ def add_user():
             
     user.new_user()  
     
-    return jsonify({"usuario" : user.serialize()}), 200
+    return jsonify({"usuario": user.serialize()}), 200
 
 @app.route('/users', methods=['GET'])
 def get_all_users():
     users = User.query.all()
     users = list(map(lambda user: user.serialize(), users))
 
-    return jsonify(users), 200 
+    return jsonify({"users":users}), 200 
 #FAV_USUARIO-----------------------------------------------------------------------------------------------------
+
 @app.route('/user/<int:user_id>/favorites', methods=['GET'])
 def get_user_favorites(user_id):
     favorite_characters = Favorite_character.query.filter_by(user_id=user_id).all()
@@ -76,7 +77,9 @@ def get_user_favorites(user_id):
     favorite_planets = list(map(lambda favorite_planet: favorite_planet.serialize(), favorite_planets))
 
     return jsonify({"favorite_characters": favorite_characters, "favorite_planets": favorite_planets}), 200
+
 #AGREGAR_FAV-----------------------------------------------------------------------------------------------------
+
 @app.route('/favorite_planet/<int:planet_id>', methods=['POST'])
 def add_favorite_planet(planet_id):
     data = request.get_json()
@@ -100,6 +103,7 @@ def add_favorite_character(character_id):
     return jsonify({"msg":"added favorite_character"}), 201
 
 #ELIMINAR_FAV-----------------------------------------------------------------------------------------------------
+
 @app.route('/favorite_planet/<int:user_id>/<int:planet_id>', methods=['DELETE'])
 def delete_favorite_planet(user_id, planet_id):
     favorite_planet = Favorite_planet.query.filter_by(user_id=user_id, planet_id=planet_id).first()
@@ -139,7 +143,7 @@ def get_all_panets():
     planets = Planet.query.all()
     planets = list(map(lambda planet: planet.serialize(), planets))# convertir en array
 
-    return jsonify(planets), 200
+    return jsonify({"planets":planets}), 200
 
 @app.route('/planets/<int:id>', methods=['GET'])
 def get_planet(id):
